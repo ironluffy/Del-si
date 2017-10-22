@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText password;
 
     Button Qr_button;
+    Button logout_bt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +70,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         findViewById(R.id.LoginButton).setOnClickListener(this);
         findViewById(R.id.signupButton).setOnClickListener(this);
-        findViewById(R.id.logoutButton).setOnClickListener(this);
+        logout_bt=(Button)findViewById(R.id.logoutButton);
+        logout_bt.setEnabled(false);
         findViewById(R.id.emailVerificationButton).setOnClickListener(this);
         Qr_button=(Button)findViewById(R.id.Qr_scan);
         Qr_button.setEnabled(false);
@@ -148,7 +150,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void userlogout() {
-        Qr_button.setEnabled(false);
         Kinvey_CLIENT.getActiveUser().put("logged_in", "Out");
         Kinvey_CLIENT.getActiveUser().update(new KinveyClientCallback<User>() {
             @Override
@@ -172,6 +173,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(LoginActivity.this, "log out failed",Toast.LENGTH_LONG).show();
             }
         });
+        Qr_button.setEnabled(false);
+        logout_bt.setEnabled(false);
     }
 
 
@@ -220,7 +223,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 }
             });
+            logout_bt.setEnabled(true);
             Qr_button.setEnabled(true);
+            findViewById(R.id.logoutButton).setOnClickListener(this);
             findViewById(R.id.Qr_scan).setOnClickListener(this);
         } catch (IOException e) {
             e.printStackTrace();
