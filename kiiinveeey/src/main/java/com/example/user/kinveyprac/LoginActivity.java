@@ -39,8 +39,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText username;
     private EditText password;
 
-    Button Qr_button;
+
     Button logout_bt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +73,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         findViewById(R.id.signupButton).setOnClickListener(this);
         logout_bt=(Button)findViewById(R.id.logoutButton);
         logout_bt.setEnabled(false);
-        findViewById(R.id.emailVerificationButton).setOnClickListener(this);
-        Qr_button=(Button)findViewById(R.id.Qr_scan);
-        Qr_button.setEnabled(false);
 //        findViewById(R.id.getuserdetailButton).setOnClickListener(this);
     }
 
@@ -88,9 +86,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.LoginButton:
                 login(username.getText().toString(), password.getText().toString());
                 break;
-            case R.id.signupButton:
-                userSignUp(username.getText().toString(), password.getText().toString());
-                break;
             case R.id.logoutButton:
                 userlogout();
                 break;
@@ -103,20 +98,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivityForResult(intent, 1);
             default:
                 break;
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode==1) {
-            if (resultCode == RESULT_OK) {
-                String str=data.getStringExtra("QR_text");
-                if(!str.equals("")) {
-                    Bic_num=str;
-                    TextView qr_txt=(TextView) findViewById(R.id.Qr_txt);
-                    qr_txt.setText(Bic_num);
-                }
-            }
         }
     }
 
@@ -134,6 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
+    /*
     private void emailVerification() {
         UserStore.sendEmailConfirmation(Kinvey_CLIENT, new KinveyUserManagementCallback() {
             @Override
@@ -148,8 +130,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+    */
 
     private void userlogout() {
+        Bic_num="test";
+        qr_txt.setText("QR Code");
         Kinvey_CLIENT.getActiveUser().put("logged_in", "Out");
         Kinvey_CLIENT.getActiveUser().update(new KinveyClientCallback<User>() {
             @Override
@@ -178,6 +163,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
+    /*
     private  void userSignUp(final String uname, final String pwd) {
         UserStore.signUp(uname, pwd, Kinvey_CLIENT, new KinveyClientCallback<User>() {
             @Override
@@ -193,6 +179,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+    */
 
     private void login(final String uname, final String pwd) {
         if (Kinvey_CLIENT.isUserLoggedIn()) {
@@ -215,6 +202,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
                         }
                     });
+
+                    Intent intent=null;
+                    intent=new Intent(LoginActivity.this, menus.class);
+                    startActivityForResult(intent, 1);
                 }
 
                 @Override

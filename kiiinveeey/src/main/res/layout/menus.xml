@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    >
+
+    <Button
+        android:id="@+id/Borrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Borrow"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/Return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Return"
+        android:layout_below="@+id/Borrow"
+        android:layout_alignLeft="@+id/Borrow"
+        android:layout_alignStart="@+id/Borrow"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/Qr_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan QR code"
+        android:layout_below="@+id/Return"
+        android:layout_alignLeft="@+id/Return"
+        android:layout_alignStart="@+id/Return"
+        android:layout_marginTop="15dp" />
+
+    <TextView
+        android:id="@+id/Qr_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QR CODE"
+        android:layout_below="@+id/Qr_scan"
+        android:layout_alignLeft="@+id/Qr_scan"
+        android:layout_alignStart="@+id/Qr_scan"
+        android:layout_marginTop="18dp" />
+</RelativeLayout>
