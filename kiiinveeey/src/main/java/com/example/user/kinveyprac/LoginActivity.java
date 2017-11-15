@@ -1,26 +1,23 @@
 package com.example.user.kinveyprac;
 
-import android.app.Activity;
-import android.app.LoaderManager;
-import android.database.Cursor;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
-import com.google.api.client.repackaged.com.google.common.base.Throwables;
+import com.google.gson.Gson;
 import com.kinvey.android.Client;
 import com.kinvey.android.callback.KinveyPingCallback;
 import com.kinvey.android.callback.KinveyUserManagementCallback;
 import com.kinvey.android.model.User;
 import com.kinvey.android.store.UserStore;
-import com.kinvey.android.store.DataStore;
 import com.kinvey.java.core.KinveyClientCallback;
 
 import java.io.IOException;
@@ -38,8 +35,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Client Kinvey_CLIENT;
     private EditText username;
     private EditText password;
+    private boolean login_success=false;
 
-
+    Button login_bt;
     Button logout_bt;
 
     @Override
@@ -47,33 +45,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         getIntent();
         setContentView(R.layout.login);
-        Kinvey_CLIENT = new Client.Builder("kid_HkEnHOtp-", "c536a8bb3efa4a0d9ffbf90081da6920", this).setBaseUrl("https://baas.kinvey.com").build();
+        Kinvey_CLIENT = ((App)getApplication()).getSharedClient();
+
 
         Kinvey_CLIENT.ping(new KinveyPingCallback() {
             @Override
             public void onSuccess(Boolean aBoolean) {
-                Log.d(TAG, "Kinvey Ping Success");
+                Log.d(TAG, "Kinvey Ping Success2");
             }
 
             @Override
             public void onFailure(Throwable throwable) {
-                Log.e(TAG, "Kinvey Ping Failed", throwable);
+                Log.e(TAG, "Kinvey Ping Failed2", throwable);
             }
         });
-
-        if(Kinvey_CLIENT.isUserLoggedIn()) {
-            Log.i(TAG, "Logged in: " + getSharedClient().getActiveUser().getUsername());
-            //Toast.makeText(LoginActivity.this, "Logged in", Toast.LENGTH_SHORT).show();
-        }
 
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
 
         findViewById(R.id.LoginButton).setOnClickListener(this);
-        findViewById(R.id.signupButton).setOnClickListener(this);
+        findViewById(R.id.logoutButton).setOnClickListener(this);
+        login_bt=(Button)findViewById(R.id.LoginButton);
         logout_bt=(Button)findViewById(R.id.logoutButton);
         logout_bt.setEnabled(false);
-//        findViewById(R.id.getuserdetailButton).setOnClickListener(this);
+
+        if(Kinvey_CLIENT.isUserLoggedIn()) {
+            //Log.i(TAG, "Logged in: " + getSharedClient().getActiveUser().getUsername());
+            Toast.makeText(LoginActivity.this, "Logged in", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public Client getSharedClient() {
@@ -82,25 +81,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
+        Intent i=null;
         switch (v.getId()) {
             case R.id.LoginButton:
                 login(username.getText().toString(), password.getText().toString());
+                if(login_success)
+                {
+                    Log.d(TAG, "Loggin_success=true\n");
+                    i=new Intent(LoginActivity.this, menus.class);
+                    startActivity(i);
+                }
                 break;
             case R.id.logoutButton:
                 userlogout();
                 break;
-            case R.id.emailVerificationButton:
-                emailVerification();
-                break;
-            case R.id.Qr_scan:
-                Intent intent=null;
-                intent=new Intent(LoginActivity.this, demodemo.class);
-                startActivityForResult(intent, 1);
             default:
                 break;
         }
     }
 
+    /*
     private void getuserdetail() {
         UserStore.get(Kinvey_CLIENT.getActiveUser().getId(), Kinvey_CLIENT, new KinveyUserManagementCallback() {
             @Override
@@ -115,7 +115,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    /*
     private void emailVerification() {
         UserStore.sendEmailConfirmation(Kinvey_CLIENT, new KinveyUserManagementCallback() {
             @Override
@@ -134,7 +133,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void userlogout() {
         Bic_num="test";
-        qr_txt.setText("QR Code");
         Kinvey_CLIENT.getActiveUser().put("logged_in", "Out");
         Kinvey_CLIENT.getActiveUser().update(new KinveyClientCallback<User>() {
             @Override
@@ -158,8 +156,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(LoginActivity.this, "log out failed",Toast.LENGTH_LONG).show();
             }
         });
-        Qr_button.setEnabled(false);
         logout_bt.setEnabled(false);
+        login_bt.setEnabled(true);
     }
 
 
@@ -189,12 +187,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             UserStore.login(uname, pwd, Kinvey_CLIENT, new KinveyClientCallback<User>() {
                 @Override
                 public void onSuccess(User user) {
+
                     Kinvey_CLIENT.getActiveUser().put("logged_in", "In");
                     Kinvey_CLIENT.getActiveUser().update(new KinveyClientCallback<User>() {
                         @Override
                         public void onSuccess(User u) {
                             Toast.makeText(LoginActivity.this, "Login complete", Toast.LENGTH_LONG).show();
-                            //Qr_button.setEnabled(true);
                         }
 
                         @Override
@@ -202,10 +200,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
                         }
                     });
-
-                    Intent intent=null;
-                    intent=new Intent(LoginActivity.this, menus.class);
-                    startActivityForResult(intent, 1);
                 }
 
                 @Override
@@ -214,10 +208,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 }
             });
+            login_success=true;
+            login_bt.setEnabled(false);
             logout_bt.setEnabled(true);
-            Qr_button.setEnabled(true);
-            findViewById(R.id.logoutButton).setOnClickListener(this);
-            findViewById(R.id.Qr_scan).setOnClickListener(this);
+
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(LoginActivity.this, "login exception", Toast.LENGTH_LONG).show();
